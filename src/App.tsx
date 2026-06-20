@@ -42,7 +42,21 @@ export default function App() {
         </header>
 
         <main className="flex-1 flex  flex-col md:flex-row w-full overflow hidden"></main>
-        <section className="w-full md:w-1/2 h-full border-b md: border-b-0 md:border-r border-zinc-800 flex  flex-cols  p-4 bg-zinc-950"></section>
+        <section className="w-full md:w-1/2 h-full border-b md: border-b-0 md:border-r border-zinc-800 flex flex-col  p-4 bg-zinc-950">
+          <h4 className="flex justify-between items-center mb-2">
+            <div className="flex gap-2 items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{" "}
+              <span className="text-xs font-semibold  text-zinc-500 tracking-wider  uppercase">
+                API JSON Response Input
+              </span>
+            </div>
+            <div className="flex gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-800"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-800"></span>
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-800"></span>
+            </div>
+          </h4>
+        </section>
       </div>
     </>
   );
