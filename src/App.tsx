@@ -41,8 +41,8 @@ export default function App() {
           </button>
         </header>
 
-        <main className="flex-1 flex  flex-col md:flex-row w-full overflow hidden">
-          <section className="w-full md:w-1/2 h-full border-b md: border-b-0 md:border-r border-zinc-800 flex flex-col  p-4 bg-zinc-950">
+        <main className="flex h-full ">
+          <section className="w-full  h-full border-b md:w-1/2 md: border-b-0 md:border-r border-zinc-800 flex flex-col  p-4 bg-zinc-950">
             <h4 className="flex justify-between items-center mb-2">
               <div className="flex gap-2 items-center">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{" "}
@@ -61,22 +61,28 @@ export default function App() {
             </h4>
             {/* Here is the input field for the  Users  */}
             <textarea
-              className={`bg-zinc-900/20 ${errors ? "border-red-500/50" : "border-zinc-900"} focus:border-zinc-800  rounded-xl  p-4 font-mono  text-sm  text-zinc-300 resize-none overflow-y-auto  focus:outline-none placeholder-zinc-700`}
+              className={`bg-zinc-900/20 ${errors ? "border-red-500/50" : "border-zinc-900"} focus:border-zinc-800  rounded-xl h-full p-4 font-mono  text-sm  text-zinc-300 resize-none overflow-y-auto  focus:outline-none placeholder-zinc-700`}
               placeholder={`{\n "status":"sucess", \n "code": 200\n}`}
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
             />
             {errors && (
-              <p className="text-xs  text-red-400  mt-2  font-mono  bg-red-500/5  border  border-red-500/10 px-3 -y-2  rounded-lg">
+              <p className="text-xs  text-red-400  mt-2  font-mono  bg-red-500/5  border  border-red-500/10 px-3 -y-2  rounded-lg mb-4">
                 {errors}{" "}
               </p>
             )}
-            <button
-              onClick={handleGenerate}
-              className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold px-4 py-3 rounded-xl mt-4 transition-all  tracking-wide  shadow-lg  shadow-emerald-500/10"
-            >
-              Generate Typed Docs
-            </button>
+
+            <div className="border border-zinc-600 w-full py-2  bg-zinc-800/40 rounded px-2 flex flex-col ">
+              <button
+                onClick={handleGenerate}
+                className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold px-4 py-3 rounded-xl mt-4 transition-all  tracking-wide  shadow-lg  shadow-emerald-500/10"
+              >
+                Generate Typed Docs
+              </button>
+              <p className="text-zinc-400 text-sm flex justify-center py-1">
+                Parses Json Typescript interfaces + field documentation
+              </p>
+            </div>
           </section>
           {/* This is the output section for the generated typed docs */}
           <section className=" w-full md:w-1/2 h-full  flex  flex-col p-4  bg-zinc-950">
