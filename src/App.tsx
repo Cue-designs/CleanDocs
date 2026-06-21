@@ -1,4 +1,15 @@
 import { useState, useRef, useEffect } from "react";
+import {
+  Search,
+  TerminalSquare,
+  Zap,
+  TableProperties,
+  Code2,
+  Copy,
+  Check,
+  Trash2,
+  Share2,
+} from "lucide-react";
 
 export default function App() {
   const [jsonInput, setJsonInput] = useState<string>("");
@@ -8,6 +19,7 @@ export default function App() {
   const [tsCode, setTsCode] = useState<string>("");
 
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isCopied, setIsCopied] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -61,6 +73,53 @@ export default function App() {
     }
   };
 
+  // Action Handlers
+  const handleCopy = async () => {
+    if (!tsCode && parsedFields.length === 0) return;
+    try {
+      // Copies the TypeScript interface or a JSON representation of the table
+      const textToCopy =
+        activeTab === "interface"
+          ? tsCode
+          : JSON.stringify(parsedFields, null, 2);
+      await navigator.clipboard.writeText(textToCopy);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text", err);
+    }
+  };
+
+  const handleDelete = () => {
+    setJsonInput("");
+    setTsCode("");
+    setParsedFields([]);
+    setErrors(null);
+  };
+
+  const handleShare = async () => {
+    if (!tsCode && parsedFields.length === 0) return;
+
+    const textToShare =
+      activeTab === "interface"
+        ? tsCode
+        : JSON.stringify(parsedFields, null, 2);
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "CleanDocs Generated Output",
+          text: textToShare,
+        });
+      } catch (err) {
+        console.error("Error sharing", err);
+      }
+    } else {
+      // Fallback to copy if Web Share API is not supported
+      handleCopy();
+    }
+  };
+
   const getTypeStyles = (type: string) => {
     switch (type) {
       case "string":
@@ -82,7 +141,6 @@ export default function App() {
       field.type.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // Dynamic date formatting for your footer
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -92,9 +150,12 @@ export default function App() {
   return (
     <>
       <div className="w-full h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden">
-        {/* HEADER: Added py-4, px-8 and shrink-0 for better spacing */}
+        {/* HEADER */}
         <header className="w-full shrink-0 border-b border-zinc-800 flex items-center justify-between px-8 py-4 bg-zinc-900/30">
           <div className="flex items-center gap-3">
+            <div className="bg-emerald-500/20 p-1.5 rounded-md border border-emerald-500/30 text-emerald-400">
+              <TerminalSquare size={18} />
+            </div>
             <span className="font-bold text-xl tracking-tight text-white">
               CleanDocs
             </span>
@@ -104,38 +165,49 @@ export default function App() {
           </div>
 
           <div className="text-sm border border-zinc-800 bg-zinc-900 px-4 py-2 rounded-lg w-[400px] flex justify-between items-center focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search fields, types, interfaces..."
-              className="bg-transparent border-none outline-none w-full text-zinc-300 placeholder-zinc-500"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="flex items-center w-full gap-2 text-zinc-400">
+              <Search size={16} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search fields, types, interfaces..."
+                className="bg-transparent border-none outline-none w-full text-zinc-300 placeholder-zinc-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
             <kbd className="text-xs bg-zinc-800 text-zinc-500 px-1.5 py-0.5 rounded border font-mono border-zinc-700 ml-2 whitespace-nowrap">
               Ctrl + K
             </kbd>
           </div>
 
-          <button className="bg-zinc-800 hover:bg-zinc-700 hover:border-emerald-500 text-sm text-zinc-400 hover:text-zinc-200 px-5 py-2 font-mono rounded-lg transition-all">
-            Sign in
-          </button>
+          <div className="flex items-center gap-4">
+            <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 hover:border-emerald-500 text-sm text-zinc-300 px-4 py-2 font-medium rounded-lg transition-all border border-zinc-700">
+              Sign in
+            </button>
+          </div>
         </header>
 
-        {/* MAIN CONTENT: Added flex-1 and overflow-hidden to perfectly constrain the middle section */}
+        {/* MAIN CONTENT */}
         <main className="flex-1 flex overflow-hidden">
+          {/* Left Panel */}
           <section className="w-full h-full border-b md:w-1/2 md:border-b-0 md:border-r border-zinc-800 flex flex-col p-6 bg-zinc-950">
             <h4 className="flex justify-between items-center mb-4">
               <div className="flex gap-2 items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span className="text-xs font-semibold text-zinc-500 tracking-wider uppercase">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                <span className="text-xs font-semibold text-zinc-400 tracking-wider uppercase">
                   API JSON Response Input
                 </span>
               </div>
-              <div className="flex gap-1.5 items-center">
-                <p className="text-xs text-zinc-500 font-semibold tracking-wider uppercase cursor-pointer hover:text-zinc-400 transition-colors">
-                  json
-                </p>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-zinc-500 font-semibold tracking-wider uppercase">
+                  JSON
+                </span>
+                <div className="flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-700"></span>
+                </div>
               </div>
             </h4>
 
@@ -154,8 +226,9 @@ export default function App() {
             <div className="border border-zinc-800 w-full py-3 bg-zinc-900/40 rounded-xl px-3 flex flex-col mt-4">
               <button
                 onClick={handleGenerate}
-                className="bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold px-4 py-3 rounded-lg transition-all tracking-wide shadow-lg shadow-emerald-500/10"
+                className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 py-3 rounded-lg transition-all tracking-wide shadow-[0_0_15px_rgba(16,185,129,0.2)]"
               >
+                <Zap size={18} fill="currentColor" />
                 Generate Typed Docs
               </button>
               <p className="text-zinc-500 text-xs flex justify-center py-1 mt-2">
@@ -164,34 +237,75 @@ export default function App() {
             </div>
           </section>
 
-          <section className="w-full md:w-1/2 h-full flex flex-col p-6 bg-zinc-950">
-            <div className="flex gap-6 border-b border-zinc-900 pb-3 mb-4">
-              <button
-                onClick={() => setActiveTab("table")}
-                className={`text-sm font-medium px-4 py-1 flex justify-center items-center rounded-md transition-colors ${
-                  activeTab === "table"
-                    ? "text-emerald-400 border border-emerald-700/50 bg-zinc-800/50"
-                    : "text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-zinc-800/30"
-                }`}
-              >
-                Interactive Table
-              </button>
-              <button
-                onClick={() => setActiveTab("interface")}
-                className={`text-sm font-medium px-4 py-1 flex justify-center items-center rounded-md transition-colors ${
-                  activeTab === "interface"
-                    ? "text-emerald-400 border border-emerald-700/50 bg-zinc-800/50"
-                    : "text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-zinc-800/30"
-                }`}
-              >
-                TypeScript Interface
-              </button>
+          {/* Right Panel */}
+          <section className="w-full md:w-1/2 h-full flex flex-col p-6 bg-zinc-950 relative">
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-3 mb-4">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setActiveTab("table")}
+                  className={`text-sm font-medium px-4 py-1.5 flex justify-center items-center gap-2 rounded-md transition-colors ${
+                    activeTab === "table"
+                      ? "text-emerald-400 border border-emerald-700/50 bg-zinc-800/50"
+                      : "text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-zinc-800/30"
+                  }`}
+                >
+                  <TableProperties size={16} />
+                  Interactive Table
+                </button>
+                <button
+                  onClick={() => setActiveTab("interface")}
+                  className={`text-sm font-medium px-4 py-1.5 flex justify-center items-center gap-2 rounded-md transition-colors ${
+                    activeTab === "interface"
+                      ? "text-emerald-400 border border-emerald-700/50 bg-zinc-800/50"
+                      : "text-zinc-500 border border-transparent hover:text-zinc-300 hover:bg-zinc-800/30"
+                  }`}
+                >
+                  <Code2 size={16} />
+                  TypeScript Interface
+                </button>
+              </div>
+
+              {/* Action Buttons: Copy, Share, Delete */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-500 mr-2 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Live {parsedFields.length} fields
+                </span>
+                <button
+                  onClick={handleShare}
+                  disabled={!tsCode && parsedFields.length === 0}
+                  className="p-1.5 text-zinc-400 hover:text-emerald-400 hover:bg-zinc-800 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Share"
+                >
+                  <Share2 size={16} />
+                </button>
+                <button
+                  onClick={handleCopy}
+                  disabled={!tsCode && parsedFields.length === 0}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCopied ? (
+                    <Check size={14} className="text-emerald-400" />
+                  ) : (
+                    <Copy size={14} />
+                  )}
+                  {isCopied ? "Copied!" : "Copy"}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={!tsCode && parsedFields.length === 0}
+                  className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 border border-transparent rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Clear Output"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
 
             <section className="flex-1 flex flex-col border border-dashed border-zinc-800 rounded-xl overflow-hidden bg-zinc-950">
               {activeTab === "table" ? (
                 <div className="w-full h-full flex flex-col overflow-y-auto p-2">
-                  <div className="grid grid-cols-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider pb-3 border-b border-zinc-900 px-4 pt-2 sticky top-0 bg-zinc-950">
+                  <div className="grid grid-cols-3 text-xs font-semibold text-zinc-500 uppercase tracking-wider pb-3 border-b border-zinc-900 px-4 pt-2 sticky top-0 bg-zinc-950 z-10">
                     <div>Field Name</div>
                     <div>Type</div>
                     <div>Description</div>
@@ -207,7 +321,7 @@ export default function App() {
                     filteredFields.map((field, idx) => (
                       <div
                         key={idx}
-                        className="grid grid-cols-3 items-center py-3.5 border-b border-zinc-900/60 hover:bg-zinc-900/20 px-4 text-sm transition-colors"
+                        className="grid grid-cols-3 items-center py-3.5 border-b border-zinc-900/60 hover:bg-zinc-900/20 px-4 text-sm transition-colors group"
                       >
                         <div className="font-mono text-zinc-200">
                           {field.name}
@@ -243,11 +357,11 @@ export default function App() {
           </section>
         </main>
 
-        {/* FOOTER: New section added with shrink-0 */}
+        {/* FOOTER */}
         <footer className="w-full shrink-0 border-t border-zinc-900 bg-zinc-950 flex items-center justify-between px-8 py-3 text-xs text-zinc-600 font-mono">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
               Systems Operational
             </span>
           </div>
