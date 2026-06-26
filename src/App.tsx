@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Search,
   TerminalSquare,
@@ -10,6 +11,7 @@ import {
   Trash2,
   Share2,
 } from "lucide-react";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   const [jsonInput, setJsonInput] = useState<string>("");
@@ -149,6 +151,7 @@ export default function App() {
 
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="w-full h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden">
         {/* HEADER */}
         <header className="w-full shrink-0 border-b border-zinc-800 flex items-center justify-between px-8 py-4 bg-zinc-900/30">
@@ -183,7 +186,9 @@ export default function App() {
 
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 hover:border-emerald-500 text-sm text-zinc-300 px-4 py-2 font-medium rounded-lg transition-all border border-zinc-700">
-              Sign in
+              <Link to="/signup">
+                <span>Sign up</span>
+              </Link>
             </button>
           </div>
         </header>
