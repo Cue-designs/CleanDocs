@@ -10,14 +10,32 @@ import {
   Check,
   Trash2,
   Share2,
+  Braces,
 } from "lucide-react";
 import { Toaster } from "react-hot-toast";
+
+const sampleJson = JSON.stringify(
+  {
+    status: "success",
+    code: 200,
+    verified: true,
+    data: { id: 42, name: "CleanDocs", tags: ["api", "docs"] },
+  },
+  null,
+  2,
+);
+
+type ParsedField = {
+  name: string;
+  type: string;
+  description: string;
+};
 
 export default function App() {
   const [jsonInput, setJsonInput] = useState<string>("");
   const [errors, setErrors] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"table" | "interface">("table");
-  const [parsedFields, setParsedFields] = useState<any[]>([]);
+  const [parsedFields, setParsedFields] = useState<ParsedField[]>([]);
   const [tsCode, setTsCode] = useState<string>("");
 
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -44,12 +62,12 @@ export default function App() {
       }
 
       const parsedData = JSON.parse(jsonInput);
-      const extractedFields: any[] = [];
+      const extractedFields: ParsedField[] = [];
       let generatedInterface = "interface RootObject {\n";
 
       for (const key in parsedData) {
         const value = parsedData[key];
-        let dataType = typeof value;
+        let dataType: string = typeof value;
 
         if (Array.isArray(value)) {
           dataType = typeof value[0] === "string" ? "string[]" : "any[]";
@@ -70,8 +88,8 @@ export default function App() {
 
       setParsedFields(extractedFields);
       setTsCode(generatedInterface);
-    } catch (err: any) {
-      setErrors(err.message || "Invalid JSON format");
+    } catch (err: unknown) {
+      setErrors(err instanceof Error ? err.message : "Invalid JSON format");
     }
   };
 
@@ -143,6 +161,16 @@ export default function App() {
       field.type.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  let inputStatus = "Waiting for JSON";
+  if (jsonInput.trim()) {
+    try {
+      JSON.parse(jsonInput);
+      inputStatus = "Valid JSON";
+    } catch {
+      inputStatus = "Incomplete JSON";
+    }
+  }
+
   const currentDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -152,10 +180,13 @@ export default function App() {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="w-full h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden">
+      <div className="workspace-shell w-full h-screen min-h-[600px] bg-zinc-950 text-zinc-100 flex flex-col font-sans overflow-hidden">
         {/* HEADER */}
-        <header className="w-full shrink-0 border-b border-zinc-800 flex items-center justify-between px-8 py-4 bg-zinc-900/30">
-          <div className="flex items-center gap-3">
+        <header className="w-full shrink-0 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-4 px-5 py-3 md:px-8 md:py-4 bg-zinc-900/30">
+          <Link
+            to="/"
+            className="flex items-center gap-3 transition-opacity hover:opacity-80"
+          >
             <div className="bg-emerald-500/20 p-1.5 rounded-md border border-emerald-500/30 text-emerald-400">
               <TerminalSquare size={18} />
             </div>
@@ -165,9 +196,9 @@ export default function App() {
             <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">
               Beta
             </span>
-          </div>
+          </Link>
 
-          <div className="text-sm border border-zinc-800 bg-zinc-900 px-4 py-2 rounded-lg w-[400px] flex justify-between items-center focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
+          <div className="text-sm border border-zinc-800 bg-zinc-900 px-4 py-2 rounded-lg w-full sm:w-[min(400px,45vw)] flex justify-between items-center focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/20 transition-all">
             <div className="flex items-center w-full gap-2 text-zinc-400">
               <Search size={16} />
               <input
@@ -184,19 +215,32 @@ export default function App() {
             </kbd>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 hover:border-emerald-500 text-sm text-zinc-300 px-4 py-2 font-medium rounded-lg transition-all border border-zinc-700">
-              <Link to="/signup">
-                <span>Sign up</span>
-              </Link>
-            </button>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="text-sm text-zinc-400 transition-colors hover:text-emerald-300"
+            >
+              Home
+            </Link>
+            <Link
+              to="/pricing"
+              className="text-sm text-zinc-400 transition-colors hover:text-emerald-300"
+            >
+              Pricing
+            </Link>
+            <Link
+              to="/signup"
+              className="flex items-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-300 transition-all hover:border-emerald-500 hover:bg-zinc-700"
+            >
+              Sign up
+            </Link>
           </div>
         </header>
 
         {/* MAIN CONTENT */}
-        <main className="flex-1 flex overflow-hidden">
+        <main className="workspace-main flex-1 min-h-0 flex flex-col overflow-y-auto md:flex-row md:overflow-hidden">
           {/* Left Panel */}
-          <section className="w-full h-full border-b md:w-1/2 md:border-b-0 md:border-r border-zinc-800 flex flex-col p-6 bg-zinc-950">
+          <section className="panel-enter w-full min-h-[560px] border-b md:min-h-0 md:h-full md:w-1/2 md:border-b-0 md:border-r border-zinc-800 flex flex-col p-5 md:p-6 bg-zinc-950">
             <h4 className="flex justify-between items-center mb-4">
               <div className="flex gap-2 items-center">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
@@ -216,11 +260,51 @@ export default function App() {
               </div>
             </h4>
 
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <span
+                className={`text-xs font-medium ${inputStatus === "Valid JSON" ? "text-emerald-400" : inputStatus === "Incomplete JSON" ? "text-amber-400" : "text-zinc-500"}`}
+              >
+                <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-current" />
+                {inputStatus}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    setJsonInput(sampleJson);
+                    setErrors(null);
+                  }}
+                  className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-emerald-300"
+                  title="Load a sample JSON response"
+                >
+                  <Braces size={14} />
+                  Sample
+                </button>
+                <button
+                  onClick={() => {
+                    setJsonInput("");
+                    setErrors(null);
+                  }}
+                  disabled={!jsonInput}
+                  className="flex items-center gap-1.5 rounded px-2 py-1 text-xs text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+                  title="Clear input"
+                >
+                  <Trash2 size={13} />
+                  Clear
+                </button>
+              </div>
+            </div>
+
             <textarea
-              className={`bg-zinc-900/20 ${errors ? "border-red-500/50" : "border-zinc-900"} border focus:border-zinc-700 rounded-xl flex-1 p-4 font-mono text-sm text-zinc-300 resize-none overflow-y-auto focus:outline-none placeholder-zinc-700`}
+              className={`editor-input bg-zinc-900/20 ${errors ? "border-red-500/50" : "border-zinc-900"} border focus:border-zinc-700 rounded-xl flex-1 min-h-0 p-4 font-mono text-sm text-zinc-300 resize-none overflow-y-auto focus:outline-none placeholder-zinc-700`}
               placeholder={`{\n  "status": "success", \n  "code": 200,\n  "verified": true,\n  "data": {}\n}`}
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
+              onKeyDown={(event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+                  event.preventDefault();
+                  handleGenerate();
+                }
+              }}
             />
             {errors && (
               <p className="text-xs text-red-400 mt-2 font-mono bg-red-500/5 border border-red-500/10 px-3 py-2 rounded-lg">
@@ -228,22 +312,25 @@ export default function App() {
               </p>
             )}
 
-            <div className="border border-zinc-800 w-full py-3 bg-zinc-900/40 rounded-xl px-3 flex flex-col mt-4">
+            <div className="border border-zinc-800 w-full py-3 bg-zinc-900/40 rounded-xl px-3 flex flex-col mt-4 transition-colors hover:border-zinc-700">
               <button
                 onClick={handleGenerate}
-                className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold px-4 py-3 rounded-lg transition-all tracking-wide shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+                className="generate-button flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.99] text-zinc-950 font-bold px-4 py-3 rounded-lg transition-all tracking-wide shadow-[0_0_15px_rgba(16,185,129,0.2)]"
               >
                 <Zap size={18} fill="currentColor" />
                 Generate Typed Docs
               </button>
               <p className="text-zinc-500 text-xs flex justify-center py-1 mt-2">
-                Parses JSON → TypeScript interfaces + field documentation
+                Parses JSON into typed fields and a TypeScript interface
+              </p>
+              <p className="text-zinc-600 text-[11px] flex justify-center pt-1 font-mono">
+                Ctrl + Enter to generate
               </p>
             </div>
           </section>
 
           {/* Right Panel */}
-          <section className="w-full md:w-1/2 h-full flex flex-col p-6 bg-zinc-950 relative">
+          <section className="panel-enter w-full min-h-[520px] md:min-h-0 md:w-1/2 md:h-full flex flex-col p-5 md:p-6 bg-zinc-950 relative">
             <div className="flex justify-between items-center border-b border-zinc-900 pb-3 mb-4">
               <div className="flex gap-4">
                 <button
@@ -272,7 +359,7 @@ export default function App() {
 
               {/* Action Buttons: Copy, Share, Delete */}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-500 mr-2 flex items-center gap-1.5">
+                <span className="text-xs text-zinc-500 mr-2 flex items-center gap-1.5 whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                   Live {parsedFields.length} fields
                 </span>
@@ -317,7 +404,7 @@ export default function App() {
                   </div>
 
                   {filteredFields.length === 0 ? (
-                    <div className="flex-1 flex items-center justify-center h-full text-zinc-600 text-sm">
+                    <div className="empty-state flex-1 flex items-center justify-center h-full text-zinc-600 text-sm">
                       {parsedFields.length === 0
                         ? "Paste JSON and click generate"
                         : "No matching fields found"}
@@ -326,7 +413,8 @@ export default function App() {
                     filteredFields.map((field, idx) => (
                       <div
                         key={idx}
-                        className="grid grid-cols-3 items-center py-3.5 border-b border-zinc-900/60 hover:bg-zinc-900/20 px-4 text-sm transition-colors group"
+                        style={{ "--row-index": idx } as React.CSSProperties}
+                        className="field-row grid grid-cols-3 items-center py-3.5 border-b border-zinc-900/60 hover:bg-zinc-900/20 px-4 text-sm transition-colors group"
                       >
                         <div className="font-mono text-zinc-200">
                           {field.name}
@@ -352,7 +440,7 @@ export default function App() {
                       Awaiting JSON data...
                     </div>
                   ) : (
-                    <pre className="text-zinc-400 leading-relaxed whitespace-pre-wrap">
+                    <pre className="code-reveal text-zinc-400 leading-relaxed whitespace-pre-wrap">
                       {tsCode}
                     </pre>
                   )}
@@ -363,20 +451,43 @@ export default function App() {
         </main>
 
         {/* FOOTER */}
-        <footer className="w-full shrink-0 border-t border-zinc-900 bg-zinc-950 flex items-center justify-between px-8 py-3 text-xs text-zinc-600 font-mono">
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-              Systems Operational
-            </span>
+        <footer className="workspace-footer">
+          <div
+            className="footer-marquee workspace-footer-marquee"
+            aria-label="JSON in, types out, docs ready"
+          >
+            <div className="footer-marquee-track" aria-hidden="true">
+              {Array.from({ length: 2 }, (_, index) => (
+                <span className="footer-marquee-group" key={index}>
+                  <span>JSON IN</span>
+                  <i />
+                  <span>TYPES OUT</span>
+                  <i />
+                  <span>DOCS READY</span>
+                  <i />
+                  <span>SHIP WITH CLARITY</span>
+                  <i />
+                </span>
+              ))}
+            </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <span>
-              Built by{" "}
-              <span className="text-zinc-400 font-semibold">Cajetan</span>
+          <div className="workspace-footer-bottom">
+            <span className="workspace-footer-status">
+              <i /> SYSTEMS OPERATIONAL
             </span>
-            <span className="text-zinc-700">|</span>
-            <span>{currentDate}</span>
+            <Link to="/" className="workspace-footer-brand">
+              <TerminalSquare size={14} /> CleanDocs
+            </Link>
+            <nav
+              className="workspace-footer-links"
+              aria-label="Workspace footer navigation"
+            >
+              <Link to="/pricing">Pricing</Link>
+              <Link to="/">Home</Link>
+            </nav>
+            <span className="workspace-footer-credit">
+              Built by Cajetan <i /> {currentDate}
+            </span>
           </div>
         </footer>
       </div>

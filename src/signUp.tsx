@@ -3,12 +3,7 @@ import axios from "axios";
 import { UserIcon, MailIcon, LockIcon, Apple } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 
-type Props = {
-  name: string;
-  password: string | number;
-};
-
-const signUp = (props: Props) => {
+const SignUp = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string | number>("");
@@ -32,7 +27,7 @@ const signUp = (props: Props) => {
   return (
     <>
       <Toaster
-        position="top-right"
+        position="top-center"
         toastOptions={{
           className: "bg-zinc-900 text-zinc-100 border border-zinc-800",
         }}
@@ -128,4 +123,4 @@ const signUp = (props: Props) => {
   );
 };
 
-export default signUp;
+export default SignUp;
