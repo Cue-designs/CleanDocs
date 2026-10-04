@@ -1,73 +1,92 @@
-# React + TypeScript + Vite
+# CleanDocs
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+CleanDocs is a JSON-to-documentation tool built to help developers turn raw API responses into clear, usable TypeScript types and field descriptions.
 
-Currently, two official plugins are available:
+Instead of manually rewriting JSON objects into interfaces or documentation, CleanDocs analyzes the data you paste in and converts it into structured output that is easier to understand, share, and reuse.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What it does
 
-## React Compiler
+CleanDocs helps you:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- paste JSON responses from an API or backend service
+- validate the JSON format
+- detect field types automatically (string, number, boolean, object, array, etc.)
+- generate TypeScript interfaces from the data
+- view the extracted fields in a readable table
+- search through fields quickly
+- copy or share the generated output
 
-## Expanding the ESLint configuration
+## Why it is useful
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Working with APIs often involves reading large JSON payloads and manually translating them into TypeScript models or docs. This is time-consuming and error-prone.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+CleanDocs reduces that effort by automatically turning response data into a clearer structure, so developers can:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- understand API payloads faster
+- reduce manual documentation work
+- create more accurate TypeScript definitions
+- speed up frontend and backend integration
+- communicate data contracts more clearly across teams
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Example
+
+If you paste this JSON:
+
+```json
+{
+  "status": "success",
+  "user": {
+    "id": 2048,
+    "name": "Ada Lovelace",
+    "verified": true
+  }
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+CleanDocs can generate output similar to:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```ts
+interface RootObject {
+  status: string;
+  user: User;
+}
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+interface User {
+  id: number;
+  name: string;
+  verified: boolean;
+}
 ```
+
+This makes the data easier to understand and use in TypeScript-based applications.
+
+## Features
+
+- JSON validation
+- automatic field detection
+- TypeScript generation
+- searchable field explorer
+- copy and share support
+- browser-based workflow with no heavy setup
+
+## Tech stack
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+Then open the local Vite URL in your browser and start pasting JSON data.
+
+## Project goal
+
+CleanDocs is designed to make API documentation and data understanding simpler, faster, and more reliable by turning JSON into structured documentation and typed interfaces.
+
