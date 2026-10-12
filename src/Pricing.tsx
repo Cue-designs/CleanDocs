@@ -35,6 +35,7 @@ const plans: Plan[] = [
       "JSON to TypeScript generation",
       "Interactive field explorer",
       "Copy and share outputs",
+      
     ],
     action: "Start for free",
     icon: Sparkles,
